@@ -62,8 +62,8 @@ export default function ImageUpload({
           .upload(filePath, file);
 
         if (uploadError) {
-          console.error("Upload error:", uploadError);
-          setError("Failed to upload image. Please try again.");
+          console.error("Supabase Storage Upload Error:", uploadError);
+          setError(`Upload failed: ${uploadError.message || "Unknown error"}. Please check your bucket configuration.`);
           continue;
         }
 
