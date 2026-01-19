@@ -88,14 +88,10 @@ export default function Header() {
               >
                 Blog
               </Link>
-              onClick={() => setMobileMenuOpen(false)}
-              >
-              Blog
-            </Link>
-          </div>
+            </div>
           </div>
         )}
-    </nav>
-    </header >
+      </nav>
+    </header>
   );
 }
