@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-navy antialiased;
+  }
+
+  /* High contrast focus states for accessibility */
+  :focus-visible {
+    @apply outline-none ring-4 ring-money ring-offset-2 ring-offset-cream;
+  }
+
+  /* Senior-friendly link styles */
+  a {
+    @apply underline-offset-4;
+  }
+}
+
+@layer components {
+  /* Primary CTA Button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white bg-money rounded-lg shadow-lg transition-all duration-200 hover:bg-money-dark hover:shadow-xl focus:ring-4 focus:ring-money/50 active:scale-[0.98];
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 text-lg font-semibold text-navy bg-white border-2 border-navy rounded-lg transition-all duration-200 hover:bg-navy hover:text-white focus:ring-4 focus:ring-navy/30;
+  }
+
+  /* Card styling */
+  .card {
+    @apply bg-white rounded-xl shadow-md p-6 border border-gray-100;
+  }
+
+  /* Section container */
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  /* Container with readable max-width */
+  .container-narrow {
+    @apply max-w-4xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-wide {
+    @apply max-w-6xl mx-auto px-4 sm:px-6;
+  }
+}
+
+/* Custom animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* Quiz step transitions */
+.quiz-step-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.quiz-step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease-out;
+}
+
+.quiz-step-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quiz-step-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease-out;
+}
