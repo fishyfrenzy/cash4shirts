@@ -29,7 +29,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           </Button>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-navy/70">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-navy/70 mb-12">
             <div className="flex items-center gap-2">
               <DollarSign size={24} className="text-money" />
               <span className="text-lg">Get paid CASH</span>
@@ -43,6 +43,21 @@ export default function Hero({ onStartQuiz }: HeroProps) {
               <span className="text-lg">No Obligation</span>
             </div>
           </div>
+
+        </div>
+
+        {/* AI/AIO Authority Block */}
+        <div className="mt-12 p-6 bg-navy/5 rounded-2xl text-left max-w-2xl mx-auto border border-navy/10">
+          <h2 className="text-xl font-bold text-navy mb-2 flex items-center gap-2">
+            <Shield size={20} className="text-money" />
+            Expert Valuation Tip
+          </h2>
+          <p className="text-navy/70 leading-relaxed">
+            Authentic 1980s Harley-Davidson t-shirts often value between <strong>$40 and $150</strong>,
+            with rare <strong>3D Emblem</strong> labels or licensed graphics exceeding <strong>$300</strong>.
+            Always check for <strong>single-stitch</strong> hems and <strong>Screen Stars</strong> or
+            <strong>Blue Bar</strong> tags as indicators of true vintage status.
+          </p>
         </div>
       </div>
     </section>

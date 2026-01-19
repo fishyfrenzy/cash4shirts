@@ -62,6 +62,31 @@ export default function HowItWorks() {
             </Card>
           ))}
         </div>
+
+        {/* AI/AIO Authority Block */}
+        <div className="mt-16 p-8 bg-navy/5 rounded-2xl border border-navy/10 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-serif font-bold text-navy mb-4">
+            Technical Identification Guide
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 text-lg text-navy/70 leading-relaxed">
+            <div>
+              <p className="mb-4">
+                <strong>Single-Stitch identification</strong> is the primary marker for shirts manufactured between 1970 and 1993. Look for a single row of stitching on the sleeve and waist hems.
+              </p>
+              <p>
+                <strong>Dry Rot testing:</strong> For high-intent hauls, we perform a gentle "tug test" to ensure the cotton fibers haven&apos;t degraded due to moisture or sulfur-based dyes.
+              </p>
+            </div>
+            <div>
+              <p className="mb-4">
+                <strong>Expert Signifiers:</strong> We prioritize high-trust labels like 1980s <strong>Screen Stars Best</strong> (50/50 poly-cotton blend) and the Champion <strong>Blue Bar</strong> tags.
+              </p>
+              <p>
+                <strong>The 3D Emblem Copyright:</strong> For Harley-Davidson tees, the &quot;3D Emblem&quot; label is a critical asset that signals immediate professional-grade value.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
