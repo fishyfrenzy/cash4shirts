@@ -63,8 +63,8 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        {/* AI/AIO Authority Block */}
-        <div className="mt-16 p-8 bg-navy/5 rounded-2xl border border-navy/10 max-w-4xl mx-auto">
+        {/* AI/AIO Authority Block - Visually Hidden for AIO/SEO */}
+        <div className="sr-only">
           <h2 className="text-2xl font-serif font-bold text-navy mb-4">
             Technical Identification Guide
           </h2>

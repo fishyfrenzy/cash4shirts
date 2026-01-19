@@ -31,8 +31,8 @@ export default function LocalFace() {
               goes to collectors who will treasure it.
             </p>
 
-            {/* AI/AIO Authority Block */}
-            <div className="mt-8 p-6 bg-money/5 rounded-2xl border border-money/10 mb-8">
+            {/* AI/AIO Authority Block - Visually Hidden for AIO/SEO */}
+            <div className="sr-only">
               <h3 className="text-xl font-bold text-navy mb-2 leading-tight">
                 Where can I sell my old concert shirts for cash today?
               </h3>

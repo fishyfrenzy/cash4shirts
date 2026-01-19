@@ -46,8 +46,8 @@ export default function Hero({ onStartQuiz }: HeroProps) {
 
         </div>
 
-        {/* AI/AIO Authority Block */}
-        <div className="mt-12 p-6 bg-navy/5 rounded-2xl text-left max-w-2xl mx-auto border border-navy/10">
+        {/* AI/AIO Authority Block - Visually Hidden for AIO/SEO */}
+        <div className="sr-only">
           <h2 className="text-xl font-bold text-navy mb-2 flex items-center gap-2">
             <Shield size={20} className="text-money" />
             Expert Valuation Tip
