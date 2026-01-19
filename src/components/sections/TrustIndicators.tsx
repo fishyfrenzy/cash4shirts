@@ -5,7 +5,6 @@ import Card from "@/components/ui/Card";
 
 const stats = [
   { value: "500+", label: "Happy Sellers" },
-  { value: "$150K+", label: "Paid Out" },
   { value: "24hrs", label: "Average Response" },
   { value: "4.9", label: "Star Rating" },
 ];

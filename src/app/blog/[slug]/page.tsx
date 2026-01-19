@@ -3,93 +3,11 @@ import { Calendar, Clock, ArrowLeft, ArrowRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-// Placeholder content - in production, this would come from a CMS or MDX
-const blogContent: Record<
-  string,
-  {
-    title: string;
-    excerpt: string;
-    date: string;
-    readTime: string;
-    category: string;
-    content: string;
-  }
-> = {
-  "how-to-identify-1980s-single-stitch-harley-tee": {
-    title: "How to Identify a 1980s Single-Stitch Harley Tee",
-    excerpt:
-      "Learn the telltale signs of authentic vintage Harley Davidson t-shirts from the 1980s.",
-    date: "2024-01-15",
-    readTime: "5 min read",
-    category: "Identification Guide",
-    content: `
-## What Makes 1980s Harley Tees Special?
-
-The 1980s were a golden era for Harley Davidson merchandise. Dealer shirts from this period are among the most sought-after vintage pieces, combining bold graphics with authentic American motorcycle culture.
-
-## Key Identification Features
-
-### 1. Single-Stitch Construction
-
-The most reliable indicator of a pre-1990s shirt is single-stitch construction. Check the bottom hem and sleeves:
-
-- **Single row of stitching** = Pre-1993 (valuable vintage)
-- **Double row of stitching** = Post-1993 (less valuable)
-
-### 2. Tag Details
-
-Look at the neck tag for manufacturing details:
-
-- "Made in USA" tags are common for authentic 80s pieces
-- Screen Stars, Hanes, and Fruit of the Loom were popular blanks
-- Copyright dates on tags or prints help date the shirt
-
-### 3. Print Characteristics
-
-80s Harley prints have distinct qualities:
-
-- **Thick, heavy ink** that often shows cracking with age
-- **Vivid colors** including the classic orange and black
-- **Dealer names and locations** printed on the back
-- Front graphics typically feature the Bar & Shield logo
-
-### 4. Fabric Feel
-
-Authentic vintage cotton has a specific feel:
-
-- Thinner, softer fabric than modern shirts
-- Often shows fading in a desirable way
-- 50/50 cotton-poly blends were also common
-
-## Red Flags for Reproductions
-
-Watch out for these signs of modern reproductions:
-
-- Tags that say "Vintage" or "Retro"
-- Perfect, crisp prints without any aging
-- Double-stitched hems
-- Modern blank brands (Gildan, Next Level)
-- Distressing that looks artificial
-
-## What Are These Shirts Worth?
-
-1980s Harley dealer tees typically sell for $50-$200 depending on:
-
-- Specific dealer (some are rarer than others)
-- Condition (fading is okay, holes decrease value)
-- Design appeal (skull graphics, eagles, and bikes are popular)
-- Size (larger sizes often command premiums)
-
----
-
-*Have shirts you think might be valuable? Take our 2-minute quiz to get a free cash offer.*
-    `,
-  },
-};
+import { blogPosts } from "@/data/blog-posts";
 
 // Generate static params for known blog posts
 export function generateStaticParams() {
-  return Object.keys(blogContent).map((slug) => ({ slug }));
+  return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
 // Generate metadata for each blog post
@@ -99,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blogContent[slug];
+  const post = blogPosts.find((p) => p.slug === slug);
 
   if (!post) {
     return {
@@ -108,8 +26,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${post.title} | Cash 4 Shirts Blog`,
-    description: post.excerpt,
+    title: post.seoTitle || `${post.title} | Cash 4 Shirts Blog`,
+    description: post.seoDescription || post.excerpt,
   };
 }
 
@@ -119,7 +37,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = blogContent[slug];
+  const post = blogPosts.find((p) => p.slug === slug);
 
   // 404 fallback for posts not in our placeholder content
   if (!post) {

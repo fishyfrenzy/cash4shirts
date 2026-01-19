@@ -3,63 +3,7 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-// Placeholder blog posts for AI/SEO authority building
-const blogPosts = [
-  {
-    slug: "how-to-identify-1980s-single-stitch-harley-tee",
-    title: "How to Identify a 1980s Single-Stitch Harley Tee",
-    excerpt:
-      "Learn the telltale signs of authentic vintage Harley Davidson t-shirts from the 1980s, including single-stitch construction, tag details, and print characteristics.",
-    date: "2024-01-15",
-    readTime: "5 min read",
-    category: "Identification Guide",
-  },
-  {
-    slug: "most-valuable-concert-tees-70s-80s",
-    title: "The Most Valuable Concert T-Shirts from the 70s and 80s",
-    excerpt:
-      "Discover which vintage concert tees from the 70s and 80s command the highest prices and why certain tour shirts have become holy grails for collectors.",
-    date: "2024-01-10",
-    readTime: "7 min read",
-    category: "Value Guide",
-  },
-  {
-    slug: "vintage-tshirt-condition-grading-guide",
-    title: "Understanding Vintage T-Shirt Condition: A Grading Guide",
-    excerpt:
-      "From deadstock to thrashed: learn how condition affects vintage t-shirt value and what collectors look for when evaluating your pieces.",
-    date: "2024-01-05",
-    readTime: "4 min read",
-    category: "Selling Tips",
-  },
-  {
-    slug: "history-harley-davidson-dealer-tees",
-    title: "The History of Harley Davidson Dealer T-Shirts",
-    excerpt:
-      "Explore the rich history of Harley dealer shirts, from small-town motorcycle shops to iconic designs that define American motorcycle culture.",
-    date: "2023-12-28",
-    readTime: "6 min read",
-    category: "History",
-  },
-  {
-    slug: "how-to-store-vintage-tshirts-properly",
-    title: "How to Store Vintage T-Shirts to Preserve Their Value",
-    excerpt:
-      "Proper storage can mean the difference between preserving and destroying your vintage collection. Learn best practices for keeping your shirts in top condition.",
-    date: "2023-12-20",
-    readTime: "4 min read",
-    category: "Care Guide",
-  },
-  {
-    slug: "spotting-fake-vintage-band-tees",
-    title: "Spotting Fake Vintage Band Tees: A Buyer's Guide",
-    excerpt:
-      "The vintage t-shirt market is full of reproductions. Learn how to spot fakes and authenticate genuine vintage band merchandise.",
-    date: "2023-12-15",
-    readTime: "8 min read",
-    category: "Authentication",
-  },
-];
+import { blogPosts } from "@/data/blog-posts";
 
 export const metadata = {
   title: "Blog | Cash 4 Shirts - Vintage T-Shirt Guides & Tips",
