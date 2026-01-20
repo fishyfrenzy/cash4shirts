@@ -19,12 +19,11 @@ export default function LocalFace() {
 
           {/* Content */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy mb-6">
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-navy mb-6">
               Real People. Fair Prices.
               <br />
               <span className="text-money">Local Service.</span>
             </h2>
-
             <p className="text-xl text-navy/80 mb-6 leading-relaxed">
               Every tee tells a story. We pay fair prices because we understand
               the value of what you&apos;re selling &mdash; and we make sure it

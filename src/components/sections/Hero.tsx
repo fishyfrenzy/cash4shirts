@@ -13,13 +13,13 @@ export default function Hero({ onStartQuiz }: HeroProps) {
       <div className="container-wide">
         <div className="max-w-3xl mx-auto text-center">
           {/* Main Headline */}
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-navy mb-6 leading-tight">
-            Turn your vintage t-shirts into money.
+          <h1 className="text-4xl md:text-6xl font-serif font-bold text-navy mb-6 leading-tight">
+            Turn Your Vintage T-Shirts Into <span className="text-money">Cash</span>.
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-navy/80 mb-8 leading-relaxed">
-            Fast quotes, fair prices, and we drive to you in Indiana & Florida.
+          <p className="text-xl md:text-2xl text-navy/80 mb-8 leading-relaxed max-w-2xl mx-auto">
+            Fast, fair offers. We drive to you in Indiana & Florida for safe, easy pickups.
           </p>
 
           {/* CTA Button */}
@@ -32,15 +32,15 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-navy/70 mb-12">
             <div className="flex items-center gap-2">
               <DollarSign size={24} className="text-money" />
-              <span className="text-lg">Get paid CASH</span>
+              <span className="text-lg font-semibold">Cash on the Spot</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock size={24} className="text-money" />
-              <span className="text-lg">24-Hour Offers</span>
+              <span className="text-lg font-semibold">Fast 24-Hour Offers</span>
             </div>
             <div className="flex items-center gap-2">
               <Shield size={24} className="text-money" />
-              <span className="text-lg">No Obligation</span>
+              <span className="text-lg font-semibold">Safe & Friendly Service</span>
             </div>
           </div>
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DollarSign, CheckCircle, ArrowRight, MapPin } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ImageUpload from "./ImageUpload";
-import { QuizResponses, Location, LeadFormData } from "@/types";
+import { QuizResponses, Location } from "@/types";
 import { getValueEstimate } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -79,11 +79,10 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
           <CheckCircle size={48} className="text-money" />
         </div>
         <h3 className="text-3xl font-serif font-bold text-navy mb-4">
-          You&apos;re All Set!
+          We&apos;re Ready to Make an Offer!
         </h3>
         <p className="text-xl text-navy/70 mb-8 max-w-md mx-auto">
-          We&apos;ve received your submission. Expect a call or text within 24
-          hours with your personalized cash offer.
+          Thanks for sending those details. We&apos;ll be in touch within 24 hours to schedule a time to see the shirts.
         </p>
         <Button variant="secondary" onClick={onReset}>
           Submit Another Collection
@@ -121,7 +120,7 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="John Smith"
+              placeholder="e.g. John Smith"
               className="w-full px-4 py-3 text-xl border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors"
               required
             />
@@ -250,25 +249,31 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
       {/* Value Badge */}
       <div className="inline-flex items-center gap-2 bg-money text-white px-5 py-3 rounded-full text-lg md:text-xl font-bold mb-6">
         <DollarSign size={24} />
-        Estimated: {estimatedValue.min} - {estimatedValue.max}
+        Based on your answers: {estimatedValue.min} - {estimatedValue.max}
       </div>
 
       <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4">
-        Great News! Your Shirts Could Be Worth Cash
+        Good News! We Are Interested In Your Shirts.
       </h3>
 
-      <p className="text-lg md:text-xl text-navy/70 mb-4 max-w-lg mx-auto">
-        Based on your answers, we pay <strong>{estimatedValue.perShirt} per shirt</strong> for
-        collections like yours.
+      <div className="bg-cream rounded-xl p-6 mb-8 border border-navy/5 max-w-lg mx-auto">
+        <p className="text-lg md:text-xl text-navy/80 mb-2">
+          Based on the details you provided, we typically pay:
+        </p>
+        <p className="text-3xl font-bold text-money mb-2">
+          {estimatedValue.perShirt} <span className="text-sm font-normal text-navy/60">per shirt*</span>
+        </p>
+        <p className="text-sm text-navy/50 italic leading-relaxed max-w-sm mx-auto">
+          *This is an estimated average based on shirt age and type. Actual offers may be higher or lower once we see the shirts in person (condition matters!).
+        </p>
+      </div>
+
+      <p className="text-lg text-navy/70 mb-8 max-w-lg mx-auto">
+        We can come to you and pay cash on the spot. No shipping, no hassle.
       </p>
 
-      <p className="text-base text-navy/60 mb-8 max-w-lg mx-auto">
-        Your collection could be worth <strong>{estimatedValue.min} - {estimatedValue.max}</strong>.
-        Upload photos to get your exact cash offer.
-      </p>
-
-      <Button size="lg" onClick={() => setStep("details")}>
-        Upload Photos & Get Exact Offer
+      <Button size="lg" onClick={() => setStep("details")} className="w-full md:w-auto px-8">
+        Upload Photos & Get Exact Price
         <ArrowRight className="ml-2" size={24} />
       </Button>
     </div>

@@ -32,7 +32,7 @@ export default function HowItWorks() {
     <section id="how-it-works" className="section bg-white">
       <div className="container-wide">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy mb-4">
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-navy mb-4">
             How It Works
           </h2>
           <p className="text-xl text-navy/70 max-w-2xl mx-auto">

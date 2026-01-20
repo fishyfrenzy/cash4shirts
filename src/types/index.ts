@@ -50,3 +50,21 @@ export interface QuizStepConfig {
 
 // Database insert type (without id and created_at)
 export type LeadInsert = Omit<Lead, "id" | "created_at">;
+
+// Hall of Fame / Recent Buy type
+export interface RecentBuy {
+  id: string;
+  created_at: string;
+  item_name: string;
+  description: string;
+  price_paid: number;
+  image_url: string;
+  technical_details: {
+    tag?: string;
+    stitch?: string;
+    era?: string;
+    condition?: string;
+  };
+}
+
+export type RecentBuyInsert = Omit<RecentBuy, "id" | "created_at">;

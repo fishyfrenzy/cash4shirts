@@ -41,9 +41,9 @@ export function getValueEstimate(quizResponses: {
   } else if (quizResponses.shirtType === "harley") {
     // Harley: varies by decade - use highest value decade selected
     const decadePrices: Record<string, number> = {
-      "70s": 30,
-      "80s": 25,
-      "90s": 20,
+      "70s": 25,
+      "80s": 20,
+      "90s": 15,
     };
     const prices = quizResponses.decades.map((d) => decadePrices[d] || 20);
     minPerShirt = Math.min(...prices);

@@ -8,6 +8,8 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import TrustIndicators from "@/components/sections/TrustIndicators";
 import LocalFace from "@/components/sections/LocalFace";
 import FAQ from "@/components/sections/FAQ";
+import BlogSection from "@/components/sections/BlogSection";
+import RecentBuys from "@/components/sections/RecentBuys";
 import ValuationQuiz from "@/components/quiz/ValuationQuiz";
 import Button from "@/components/ui/Button";
 import { ArrowRight, Phone } from "lucide-react";
@@ -28,6 +30,9 @@ export default function Home() {
         {/* How It Works */}
         <HowItWorks />
 
+        {/* Recent Buys - Authority Proof */}
+        <RecentBuys />
+
         {/* Trust Indicators & Testimonials */}
         <TrustIndicators />
 
@@ -37,12 +42,11 @@ export default function Home() {
         {/* Mid-Page CTA */}
         <section className="section bg-navy text-white">
           <div className="container-narrow text-center">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-              Ready to Cash In Your Vintage Tees?
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">
+              Monetize Your Vintage Archive
             </h2>
             <p className="text-xl text-white/80 mb-8 max-w-xl mx-auto">
-              It takes just 2 minutes to get started. No obligation, no pressure
-              &mdash; just a fair cash offer.
+              Obtain a professional liquidity estimate in under 2 minutes. No obligation—just a precise, expert cash offer.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -68,49 +72,16 @@ export default function Home() {
         <FAQ />
 
         {/* Latest Blog Posts */}
-        <section className="section bg-white">
-          <div className="container-wide">
-            <div className="flex items-center justify-between mb-10">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy">
-                Latest from the Blog
-              </h2>
-              <Link
-                href="/blog"
-                className="text-money font-semibold flex items-center gap-2 hover:gap-3 transition-all no-underline"
-              >
-                View All Posts
-                <ArrowRight size={20} />
-              </Link>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {blogPosts.slice(0, 3).map((post) => (
-                <article key={post.slug} className="group">
-                  <Link href={`/blog/${post.slug}`} className="no-underline">
-                    <div className="aspect-video bg-gradient-to-br from-navy/5 to-money/5 rounded-xl flex items-center justify-center mb-4 group-hover:shadow-md transition-shadow">
-                      <span className="text-navy/20">[Blog Image]</span>
-                    </div>
-                    <span className="text-money font-medium text-sm">
-                      {post.category}
-                    </span>
-                    <h3 className="text-xl font-bold text-navy mt-2 group-hover:text-money transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <BlogSection />
 
         {/* Final CTA */}
         <section className="section bg-cream">
           <div className="container-narrow text-center">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy mb-4">
-              Don&apos;t Let Your Vintage Tees Collect Dust
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-navy mb-4">
+              Maximize Your Collection&apos;s Value
             </h2>
             <p className="text-xl text-navy/70 mb-8 max-w-xl mx-auto">
-              Every day you wait, the market changes. Get your free quote today
-              and see what your collection is worth.
+              Market volatility affects vintage valuations. Secure your expert appraisal today and lock in your collection&apos;s peak market value.
             </p>
             <Button size="lg" onClick={() => setQuizOpen(true)}>
               Get My Free Cash Offer
