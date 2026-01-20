@@ -278,6 +278,8 @@ If a deal looks too good to be true, it is. A $20 Iron Maiden shirt from 1982 is
         seoTitle: "Hanes vs 3D Emblem: Vintage Harley Shirt Value Guide | Cash4Shirts",
         seoDescription: "Protect yourself from selling a $500 shirt for $20. Detailed guide on identifying 3D Emblem vs Hanes Beefy-T tags on vintage Harley Davidson t-shirts.",
         content: `
+![Hanes Beefy-T vs 3D Emblem: Side-by-side comparison of vintage Harley shirts](/images/blog/hanes-vs-3d-emblem.jpg)
+
 ## The Million Dollar Confusion
 
 If you are digging through an attic in Indiana or clearing out a closet in Florida, you might stumble across a stack of old black Harley-Davidson t-shirts. To the untrained eye, they all look the same: faded black cotton, an eagle, and a dealership name on the back.
