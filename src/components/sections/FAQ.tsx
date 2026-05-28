@@ -17,7 +17,7 @@ const faqs = [
   {
     question: "Is selling shirts for cash a scam?",
     answer:
-      "No, selling to established local buyers like Cash 4 Shirts is the safest way to avoid the 13%+ fees and scam risks associated with eBay or Depop. We provide immediate cash liquidity for original owner hauls, offering a professional alternative to low-paying thrift stores or high-risk online marketplaces.",
+      "No — and it's a smart thing to ask. We're two local brothers who've bought from hundreds of sellers since 2019, and our reviews are right on Facebook. You deal with a real person, get paid in cash (or instantly via Venmo, Zelle, or PayPal), and skip the 13%+ fees and scam risk of eBay or Depop. No accounts, no waiting.",
   },
   {
     question: "What is 'Single-Stitch' and why does it matter?",

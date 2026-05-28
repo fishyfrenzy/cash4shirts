@@ -1,20 +1,21 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Image as ImageIcon, Camera } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Upload, X, Camera, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
+  compact?: boolean; // small one-tap button instead of a large drop zone
 }
 
 export default function ImageUpload({
   images,
   onImagesChange,
   maxImages = 5,
+  compact = false,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,26 +95,88 @@ export default function ImageUpload({
     onImagesChange(images.filter((_, index) => index !== indexToRemove));
   };
 
+  const canAddMore = images.length < maxImages;
+  const triggerPicker = () => !uploading && fileInputRef.current?.click();
+
+  // Hidden file input shared by both modes
+  const input = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={handleFileSelect}
+      className="hidden"
+      disabled={uploading}
+    />
+  );
+
+  // Thumbnails grid (used in both modes when there are images)
+  const thumbs = images.length > 0 && (
+    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+      {images.map((url, index) => (
+        <div key={index} className="relative group aspect-square">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt={`Uploaded shirt ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
+          <button
+            type="button"
+            onClick={() => removeImage(index)}
+            className="absolute top-1 right-1 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600"
+            aria-label="Remove image"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+
+  // ── Compact mode: small inline button instead of a giant drop zone ──
+  if (compact) {
+    return (
+      <div className="space-y-3">
+        {input}
+        {canAddMore && (
+          <button
+            type="button"
+            onClick={triggerPicker}
+            disabled={uploading}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-money/50 rounded-lg text-base font-semibold text-navy/80 hover:border-money hover:bg-money/5 disabled:cursor-wait transition-colors"
+          >
+            {uploading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-money border-t-transparent rounded-full animate-spin" />
+                Uploading…
+              </>
+            ) : (
+              <>
+                {images.length === 0 ? <Camera size={20} className="text-money" /> : <Plus size={20} className="text-money" />}
+                {images.length === 0 ? "Add photos (up to 5)" : `Add more (${images.length}/${maxImages})`}
+              </>
+            )}
+          </button>
+        )}
+        {thumbs}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Default (large drop zone) mode ──
   return (
     <div className="space-y-4">
-      {/* Upload Area */}
       <div
-        onClick={() => !uploading && fileInputRef.current?.click()}
+        onClick={triggerPicker}
         className={`
           border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
           ${uploading ? "border-gray-300 bg-gray-50 cursor-wait" : "border-money/50 hover:border-money hover:bg-money/5"}
         `}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleFileSelect}
-          className="hidden"
-          disabled={uploading}
-        />
-
+        {input}
         <div className="flex flex-col items-center gap-3">
           {uploading ? (
             <>
@@ -126,50 +189,21 @@ export default function ImageUpload({
                 <Upload size={32} className="text-money" />
                 <Camera size={32} className="text-money" />
               </div>
-              <p className="text-xl font-semibold text-navy">
-                Click to Upload Photos
-              </p>
-              <p className="text-lg text-navy/60">
-                or drag and drop your shirt images here
-              </p>
-              <p className="text-base text-navy/50">
-                Up to {maxImages} images, 10MB each (JPG, PNG)
-              </p>
+              <p className="text-xl font-semibold text-navy">Click to Upload Photos</p>
+              <p className="text-base text-navy/50">Up to {maxImages} images, 10MB each (JPG, PNG)</p>
             </>
           )}
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-lg">
           {error}
         </div>
       )}
 
-      {/* Image Preview Grid */}
-      {images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {images.map((url, index) => (
-            <div key={index} className="relative group aspect-square">
-              <img
-                src={url}
-                alt={`Uploaded shirt ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
-              />
-              <button
-                onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                aria-label="Remove image"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      {thumbs}
 
-      {/* Image Count */}
       <p className="text-base text-navy/60 text-center">
         {images.length} of {maxImages} images uploaded
       </p>

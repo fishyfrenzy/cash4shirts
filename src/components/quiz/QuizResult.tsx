@@ -6,7 +6,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ImageUpload from "./ImageUpload";
 import { QuizResponses } from "@/types";
-import { getEstimatedValue, getLeadCategory, getValueEstimate } from "@/lib/utils";
+import { formatPhoneNumber, getEstimatedValue, getLeadCategory, getValueEstimate } from "@/lib/utils";
 import { getAttribution } from "@/lib/attribution";
 import { US_STATES, LOCAL_STATES } from "@/lib/us-states";
 
@@ -115,32 +115,20 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
   if (step === "details") {
     return (
       <div className="animate-fade-in-up">
-        <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4 text-center">
-          Almost There! Tell Us How to Reach You
+        <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-2 text-center">
+          Last step — how do we reach you?
         </h3>
 
-        {/* Trust block — reduces phone-number-handover anxiety (CLAUDE.md §8) */}
-        <div className="flex items-start gap-3 bg-money/5 border border-money/20 rounded-xl p-4 mb-6">
-          <ShieldCheck size={28} className="text-money flex-shrink-0 mt-1" />
-          <p className="text-base md:text-lg text-navy/80">
-            A real person will text you within the hour — no spam, no robocalls.
-            Your number is only used to make you an offer.
-            {/* TODO: replace with a short intro video or photo of the buyer (§8). */}
-          </p>
-        </div>
+        {/* Compact trust strip (one line, doesn't push the form below the fold) */}
+        <p className="flex items-center justify-center gap-2 text-base text-navy/70 mb-6 text-center">
+          <ShieldCheck size={18} className="text-money flex-shrink-0" />
+          A real person will text you within the hour — no spam.
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Image Upload */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Required fields first so they're immediately visible on mobile */}
           <div>
-            <label className="block text-lg font-semibold text-navy mb-2">
-              Upload Photos of Your Shirts (Optional)
-            </label>
-            <ImageUpload images={images} onImagesChange={setImages} />
-          </div>
-
-          {/* Full Name */}
-          <div>
-            <label htmlFor="fullName" className="block text-lg font-semibold text-navy mb-2">
+            <label htmlFor="fullName" className="block text-lg font-semibold text-navy mb-1">
               Your Name *
             </label>
             <input
@@ -155,27 +143,26 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
             />
           </div>
 
-          {/* Phone Number */}
           <div>
-            <label htmlFor="phoneNumber" className="block text-lg font-semibold text-navy mb-2">
+            <label htmlFor="phoneNumber" className="block text-lg font-semibold text-navy mb-1">
               Phone Number *
             </label>
             <input
               type="tel"
               id="phoneNumber"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Your Phone Number"
+              onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+              placeholder="(555) 555-5555"
               autoComplete="tel"
+              inputMode="tel"
               className="w-full px-4 py-3 text-xl border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors"
               required
             />
-            <p className="text-base text-navy/50 mt-1">No email needed — we&apos;ll just text you.</p>
+            <p className="text-sm text-navy/50 mt-1">No email needed — we&apos;ll just text you.</p>
           </div>
 
-          {/* State */}
           <div>
-            <label htmlFor="state" className="block text-lg font-semibold text-navy mb-2">
+            <label htmlFor="state" className="block text-lg font-semibold text-navy mb-1">
               Your State *
             </label>
             <select
@@ -196,28 +183,33 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
             </select>
           </div>
 
-          {/* Additional Details */}
+          {/* Optional fields — compact so they don't dominate the screen */}
           <div>
-            <label htmlFor="userComments" className="block text-lg font-semibold text-navy mb-2">
-              Any extra details? (Optional)
+            <label className="block text-base font-semibold text-navy/80 mb-1">
+              Photos of your shirts <span className="text-navy/50 font-normal">(optional — helps us quote faster)</span>
+            </label>
+            <ImageUpload images={images} onImagesChange={setImages} compact />
+          </div>
+
+          <div>
+            <label htmlFor="userComments" className="block text-base font-semibold text-navy/80 mb-1">
+              Anything else we should know? <span className="text-navy/50 font-normal">(optional)</span>
             </label>
             <textarea
               id="userComments"
               value={userComments}
               onChange={(e) => setUserComments(e.target.value)}
-              placeholder="Tell us more about your collection, specific brands, or anything else we should know..."
-              className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors min-h-[100px] resize-none"
+              placeholder="Specific brands, condition notes, etc."
+              className="w-full px-4 py-3 text-base border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors min-h-[60px] resize-none"
             />
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-lg">
               {error}
             </div>
           )}
 
-          {/* Submit Button */}
           <Button type="submit" size="lg" className="w-full" isLoading={submitting}>
             Get My Cash Offer
             <ArrowRight className="ml-2" size={24} />
@@ -265,7 +257,7 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
       </p>
 
       <Button size="lg" onClick={() => setStep("details")} className="w-full md:w-auto px-8">
-        Upload Photos & Get Exact Price
+        See My Offer & Next Steps
         <ArrowRight className="ml-2" size={24} />
       </Button>
     </div>

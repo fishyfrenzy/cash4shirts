@@ -30,7 +30,7 @@ export default function Home() {
         <HowItWorks />
 
         {/* Recent Buys - Authority Proof */}
-        <RecentBuys />
+        <RecentBuys onStartQuiz={() => setQuizOpen(true)} />
 
         {/* Trust Indicators & Testimonials */}
         <TrustIndicators />

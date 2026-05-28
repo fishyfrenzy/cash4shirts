@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, DollarSign, Clock, Shield } from "lucide-react";
+import { ArrowRight, DollarSign, Clock, Shield, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface HeroProps {
@@ -23,10 +23,37 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           </p>
 
           {/* CTA Button */}
-          <Button size="lg" onClick={onStartQuiz} className="mb-8 w-full sm:w-auto">
+          <Button size="lg" onClick={onStartQuiz} className="mb-3 w-full sm:w-auto">
             Get Your Free Cash Offer
             <ArrowRight className="ml-2" size={24} />
           </Button>
+
+          {/* Reassurance microcopy — directly under the CTA where hesitation peaks */}
+          <p className="text-base text-navy/60 mb-6">
+            Free &middot; Takes 2 minutes &middot; No obligation
+          </p>
+
+          {/* Compact social proof under the CTA */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-8">
+            <div className="flex items-center gap-1 text-gold">
+              <Star size={18} fill="currentColor" />
+              <Star size={18} fill="currentColor" />
+              <Star size={18} fill="currentColor" />
+              <Star size={18} fill="currentColor" />
+              <Star size={18} fill="currentColor" />
+            </div>
+            <p className="text-base text-navy/70">
+              <span className="font-semibold text-navy">4.9</span> from{" "}
+              <a
+                href="https://facebook.com/cash4shirts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-navy underline decoration-money/40 hover:decoration-money"
+              >
+                real Facebook reviews
+              </a>
+            </p>
+          </div>
 
           {/* Trust Indicators */}
           <div className="flex flex-wrap justify-center gap-6 md:gap-10 text-navy/70 mb-12">

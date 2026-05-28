@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { Trophy, Star, ShieldCheck, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { RecentBuy } from "@/types";
-import Button from "@/components/ui/Button";
-import Link from "next/link";
 
-export default function RecentBuys() {
+interface RecentBuysProps {
+  onStartQuiz?: () => void;
+}
+
+export default function RecentBuys({ onStartQuiz }: RecentBuysProps) {
     const [items, setItems] = useState<RecentBuy[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -53,21 +55,22 @@ export default function RecentBuys() {
                     <div className="max-w-2xl">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-money/10 text-money rounded-full text-sm font-bold uppercase tracking-wider mb-4 border border-money/20">
                             <Trophy size={14} />
-                            Recent Appraisals
+                            Recent Buys
                         </div>
                         <h2 className="text-4xl md:text-5xl font-serif font-bold text-navy mb-4 leading-tight">
                             Cash<span className="text-money">4</span>Shirts Recent Buys
                         </h2>
                         <p className="text-xl text-navy/60">
-                            We pay top dollar for the best vintage. Here are a few high-value pieces we've recently added to our collection.
+                            A few shirts we&apos;ve bought lately, and what we paid for them.
                         </p>
                     </div>
-                    <Link
-                        href="/quiz"
-                        className="hidden md:flex items-center gap-2 bg-navy text-white px-6 py-3 rounded-lg font-bold hover:bg-navy/90 transition-all no-underline"
+                    <button
+                        type="button"
+                        onClick={onStartQuiz}
+                        className="hidden md:flex items-center gap-2 bg-navy text-white px-6 py-3 rounded-lg font-bold hover:bg-navy/90 transition-all"
                     >
-                        Get Your Appraisal <ArrowRight size={20} />
-                    </Link>
+                        What&apos;s Yours Worth? <ArrowRight size={20} />
+                    </button>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -145,12 +148,13 @@ export default function RecentBuys() {
                 </div>
 
                 <div className="mt-12 md:hidden">
-                    <Link
-                        href="/quiz"
-                        className="w-full flex items-center justify-center gap-2 bg-navy text-white px-6 py-4 rounded-lg font-bold hover:bg-navy/90 transition-all no-underline"
+                    <button
+                        type="button"
+                        onClick={onStartQuiz}
+                        className="w-full flex items-center justify-center gap-2 bg-navy text-white px-6 py-4 rounded-lg font-bold hover:bg-navy/90 transition-all"
                     >
-                        Get Your Appraisal <ArrowRight size={20} />
-                    </Link>
+                        What&apos;s Yours Worth? <ArrowRight size={20} />
+                    </button>
                 </div>
             </div>
         </section>
