@@ -5,10 +5,15 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Prevent any stray element from causing horizontal scroll on mobile.
+       `clip` (not `hidden`) doesn't break the sticky header. */
+    overflow-x: clip;
   }
 
   body {
     @apply bg-cream text-navy antialiased;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   /* High contrast focus states for accessibility */

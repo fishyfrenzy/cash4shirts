@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Phone, Menu, X } from "lucide-react";
+import { BUYER_PHONE_DISPLAY, BUYER_PHONE_TEL } from "@/lib/config";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -46,14 +47,27 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button - Only shows on small screens */}
-          <button
-            className="md:hidden p-2 text-navy"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          {/* Click-to-call — always visible, including on mobile (CLAUDE.md §9) */}
+          <div className="flex items-center gap-2">
+            <a
+              href={`tel:${BUYER_PHONE_TEL}`}
+              className="flex items-center gap-2 bg-money text-white px-3 py-2 md:px-5 md:py-3 rounded-lg font-bold no-underline hover:bg-money-dark transition-colors"
+              aria-label={`Call us at ${BUYER_PHONE_DISPLAY}`}
+            >
+              <Phone size={20} />
+              <span className="hidden sm:inline">{BUYER_PHONE_DISPLAY}</span>
+              <span className="sm:hidden">Call</span>
+            </a>
+
+            {/* Mobile Menu Button - Only shows on small screens */}
+            <button
+              className="md:hidden p-2 text-navy"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}

@@ -36,7 +36,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
             </div>
             <div className="flex items-center gap-2">
               <Clock size={24} className="text-money" />
-              <span className="text-lg font-semibold">Fast 24-Hour Offers</span>
+              <span className="text-lg font-semibold">We Reply Within the Hour</span>
             </div>
             <div className="flex items-center gap-2">
               <Shield size={24} className="text-money" />

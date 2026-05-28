@@ -6,12 +6,14 @@ import QuizStep from "./QuizStep";
 import QuizResult from "./QuizResult";
 import Button from "@/components/ui/Button";
 import { QuizResponses, QuizStepConfig } from "@/types";
+import { trackQuizStep } from "@/lib/tracking";
 
 const quizSteps: QuizStepConfig[] = [
   {
     id: 1,
     question: "What type of shirts do you have?",
     field: "shirtType",
+    multiSelect: true,
     options: [
       {
         value: "harley",
@@ -84,6 +86,7 @@ const quizSteps: QuizStepConfig[] = [
     id: 4,
     question: "What condition are they in?",
     field: "condition",
+    note: "Why we ask — we personally inspect every shirt, so an honest answer means a faster, fairer offer.",
     options: [
       {
         value: "great",
@@ -156,19 +159,7 @@ export default function ValuationQuiz({ isOpen, onClose }: ValuationQuizProps) {
   const handleSelect = (field: keyof QuizResponses, value: string | string[]) => {
     const newResponses = { ...responses, [field]: value };
     setResponses(newResponses);
-
-    // For shirt type selection
-    if (field === "shirtType" && typeof value === "string") {
-      // If 90s band tees, auto-set decades to 90s and skip that step
-      if (value === "90s_band") {
-        setResponses((prev) => ({ ...prev, [field]: value, decades: ["90s"] }));
-        // Skip to volume step (step 2, which is index 2 after shirt type)
-        setTimeout(() => {
-          setCurrentStep(2); // Skip decades step
-        }, 300);
-        return;
-      }
-    }
+    trackQuizStep(currentStep + 1, { [field]: value });
 
     // For non-multi-select fields, auto-advance
     const currentStepConfig = quizSteps[currentStep];
@@ -185,12 +176,7 @@ export default function ValuationQuiz({ isOpen, onClose }: ValuationQuizProps) {
     if (showResult) {
       setShowResult(false);
     } else if (currentStep > 0) {
-      // If we're on volume step and shirt type is 90s_band, go back to shirt type
-      if (currentStep === 2 && responses.shirtType === "90s_band") {
-        setCurrentStep(0);
-      } else {
-        setCurrentStep((prev) => prev - 1);
-      }
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -252,6 +238,7 @@ export default function ValuationQuiz({ isOpen, onClose }: ValuationQuizProps) {
           ) : (
             <QuizStep
               question={currentQuizStep.question}
+              note={currentQuizStep.note}
               options={currentQuizStep.options}
               selectedValue={responses[currentQuizStep.field] || (currentQuizStep.multiSelect ? [] : null)}
               onSelect={(value) => handleSelect(currentQuizStep.field, value)}

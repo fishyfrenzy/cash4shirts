@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { DollarSign, CheckCircle, ArrowRight, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { DollarSign, ArrowRight, ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ImageUpload from "./ImageUpload";
-import { QuizResponses, Location } from "@/types";
-import { getValueEstimate } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { QuizResponses } from "@/types";
+import { getEstimatedValue, getLeadCategory } from "@/lib/utils";
+import { getAttribution } from "@/lib/attribution";
+import { US_STATES, LOCAL_STATES } from "@/lib/us-states";
 
 interface QuizResultProps {
   quizResponses: QuizResponses;
@@ -14,89 +16,115 @@ interface QuizResultProps {
 }
 
 export default function QuizResult({ quizResponses, onReset }: QuizResultProps) {
-  const [step, setStep] = useState<"result" | "details" | "success">("result");
+  const router = useRouter();
+  const [step, setStep] = useState<"result" | "details">("result");
   const [images, setImages] = useState<string[]>([]);
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [userComments, setUserComments] = useState("");
-  const [location, setLocation] = useState<Location>("indianapolis");
-  const [customLocation, setCustomLocation] = useState("");
+  const [stateCode, setStateCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const estimatedValue = getValueEstimate(quizResponses);
+  // Keep onReset referenced (used by callers to restart the quiz).
+  void onReset;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
 
-    // Basic validation
     if (!fullName.trim() || !phoneNumber.trim()) {
-      setError("Please fill in all required fields");
+      setError("Please enter your name and phone number so we can reach you.");
+      setSubmitting(false);
+      return;
+    }
+    if (!stateCode) {
+      setError("Please choose your state.");
       setSubmitting(false);
       return;
     }
 
     try {
-      const supabase = createClient();
-      const finalLocation = location === "other" ? customLocation.trim() : location;
-
-      if (location === "other" && !customLocation.trim()) {
-        setError("Please enter your location");
-        setSubmitting(false);
-        return;
-      }
-
-      const { error: insertError } = await supabase.from("leads").insert({
-        full_name: fullName.trim(),
-        phone_number: phoneNumber.trim(),
-        location: finalLocation,
-        quiz_responses: quizResponses,
-        images,
-        status: "new",
-        user_comments: userComments.trim() || null,
+      // 1. Write the lead (source of truth) + fire Jake/seller notifications.
+      const leadRes = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          phoneNumber: phoneNumber.trim(),
+          location: stateCode,
+          quizResponses,
+          images,
+          userComments: userComments.trim() || null,
+        }),
       });
 
-      if (insertError) {
-        console.error("Insert error:", insertError);
+      if (!leadRes.ok) {
+        console.error("Lead submit failed:", leadRes.status);
         throw new Error("Failed to submit. Please try again.");
       }
 
-      setStep("success");
+      // 2. Derive segmentation. Local leads close better, so they carry a higher value.
+      const category = getLeadCategory(quizResponses);
+      const isLocal = LOCAL_STATES.includes(stateCode as (typeof LOCAL_STATES)[number]);
+      const baseValue = getEstimatedValue(quizResponses);
+      const value = isLocal ? Math.round(baseValue * 1.5) : baseValue;
+
+      // 3. Fire server-side CAPI and get the shared event_id back for the pixel.
+      let eventId = "";
+      try {
+        const convRes = await fetch("/api/conversions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            category,
+            value,
+            isLocal,
+            phone: phoneNumber.trim(),
+            fullName: fullName.trim(),
+            eventSourceUrl: window.location.href,
+            attribution: getAttribution(),
+          }),
+        });
+        if (convRes.ok) {
+          eventId = (await convRes.json()).eventId ?? "";
+        }
+      } catch (convErr) {
+        // Tracking must never block a successful lead.
+        console.error("Conversion tracking failed:", convErr);
+      }
+
+      // 4. Route to the segmented thank-you page; it fires the matching browser pixel.
+      const query = new URLSearchParams({
+        local: String(isLocal),
+        value: String(value),
+        eid: eventId,
+      });
+      router.push(`/confirmed-${category}?${query.toString()}`);
     } catch (err) {
       console.error("Submission error:", err);
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   };
 
-  if (step === "success") {
-    return (
-      <div className="text-center py-8 animate-fade-in-up">
-        <div className="w-20 h-20 mx-auto bg-money/10 rounded-full flex items-center justify-center mb-6">
-          <CheckCircle size={48} className="text-money" />
-        </div>
-        <h3 className="text-3xl font-serif font-bold text-navy mb-4">
-          We&apos;re Ready to Make an Offer!
-        </h3>
-        <p className="text-xl text-navy/70 mb-8 max-w-md mx-auto">
-          Thanks for sending those details. We&apos;ll be in touch within 24 hours to schedule a time to see the shirts.
-        </p>
-        <Button variant="secondary" onClick={onReset}>
-          Submit Another Collection
-        </Button>
-      </div>
-    );
-  }
-
   if (step === "details") {
     return (
       <div className="animate-fade-in-up">
-        <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-6 text-center">
+        <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4 text-center">
           Almost There! Tell Us How to Reach You
         </h3>
+
+        {/* Trust block — reduces phone-number-handover anxiety (CLAUDE.md §8) */}
+        <div className="flex items-start gap-3 bg-money/5 border border-money/20 rounded-xl p-4 mb-6">
+          <ShieldCheck size={28} className="text-money flex-shrink-0 mt-1" />
+          <p className="text-base md:text-lg text-navy/80">
+            A real person will text you within the hour — no spam, no robocalls.
+            Your number is only used to make you an offer.
+            {/* TODO: replace with a short intro video or photo of the buyer (§8). */}
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
@@ -109,10 +137,7 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
 
           {/* Full Name */}
           <div>
-            <label
-              htmlFor="fullName"
-              className="block text-lg font-semibold text-navy mb-2"
-            >
+            <label htmlFor="fullName" className="block text-lg font-semibold text-navy mb-2">
               Your Name *
             </label>
             <input
@@ -121,6 +146,7 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. John Smith"
+              autoComplete="name"
               className="w-full px-4 py-3 text-xl border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors"
               required
             />
@@ -128,10 +154,7 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
 
           {/* Phone Number */}
           <div>
-            <label
-              htmlFor="phoneNumber"
-              className="block text-lg font-semibold text-navy mb-2"
-            >
+            <label htmlFor="phoneNumber" className="block text-lg font-semibold text-navy mb-2">
               Phone Number *
             </label>
             <input
@@ -140,17 +163,39 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="Your Phone Number"
+              autoComplete="tel"
               className="w-full px-4 py-3 text-xl border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors"
               required
             />
+            <p className="text-base text-navy/50 mt-1">No email needed — we&apos;ll just text you.</p>
+          </div>
+
+          {/* State */}
+          <div>
+            <label htmlFor="state" className="block text-lg font-semibold text-navy mb-2">
+              Your State *
+            </label>
+            <select
+              id="state"
+              value={stateCode}
+              onChange={(e) => setStateCode(e.target.value)}
+              className="w-full px-4 py-3 text-xl border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors bg-white min-h-[60px]"
+              required
+            >
+              <option value="" disabled>
+                Select your state…
+              </option>
+              {US_STATES.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Additional Details */}
           <div>
-            <label
-              htmlFor="userComments"
-              className="block text-lg font-semibold text-navy mb-2"
-            >
+            <label htmlFor="userComments" className="block text-lg font-semibold text-navy mb-2">
               Any extra details? (Optional)
             </label>
             <textarea
@@ -162,61 +207,6 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
             />
           </div>
 
-          {/* Location */}
-          <div>
-            <label className="block text-lg font-semibold text-navy mb-2">
-              Your Location *
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setLocation("indianapolis")}
-                className={`p-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${location === "indianapolis"
-                  ? "border-money bg-money/5"
-                  : "border-gray-200 hover:border-money/50"
-                  }`}
-              >
-                <MapPin size={20} className="text-money" />
-                <span className="text-lg font-medium">Indiana</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocation("florida")}
-                className={`p-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${location === "florida"
-                  ? "border-money bg-money/5"
-                  : "border-gray-200 hover:border-money/50"
-                  }`}
-              >
-                <MapPin size={20} className="text-money" />
-                <span className="text-lg font-medium">Florida</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocation("other")}
-                className={`p-4 rounded-lg border-2 flex items-center justify-center gap-2 transition-all ${location === "other"
-                  ? "border-money bg-money/5"
-                  : "border-gray-200 hover:border-money/50"
-                  }`}
-              >
-                <MapPin size={20} className="text-money" />
-                <span className="text-lg font-medium">Other</span>
-              </button>
-            </div>
-
-            {location === "other" && (
-              <div className="mt-4 animate-fade-in">
-                <input
-                  type="text"
-                  value={customLocation}
-                  onChange={(e) => setCustomLocation(e.target.value)}
-                  placeholder="Enter your city/state"
-                  className="w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-money focus:ring-2 focus:ring-money/20 outline-none transition-colors"
-                  required
-                />
-              </div>
-            )}
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-lg">
@@ -225,18 +215,13 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
           )}
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full"
-            isLoading={submitting}
-          >
+          <Button type="submit" size="lg" className="w-full" isLoading={submitting}>
             Get My Cash Offer
             <ArrowRight className="ml-2" size={24} />
           </Button>
 
           <p className="text-base text-navy/60 text-center">
-            We&apos;ll contact you within 24 hours. No obligation.
+            We&apos;ll text you within the hour. No obligation.
           </p>
         </form>
       </div>
@@ -246,30 +231,29 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
   // Result Step
   return (
     <div className="text-center animate-fade-in-up">
-      {/* Value Badge */}
-      <div className="inline-flex items-center gap-2 bg-money text-white px-5 py-3 rounded-full text-lg md:text-xl font-bold mb-6">
-        <DollarSign size={24} />
-        Based on your answers: {estimatedValue.min} - {estimatedValue.max}
-      </div>
-
       <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4">
         Good News! We Are Interested In Your Shirts.
       </h3>
 
       <div className="bg-cream rounded-xl p-6 mb-8 border border-navy/5 max-w-lg mx-auto">
-        <p className="text-lg md:text-xl text-navy/80 mb-2">
+        <p className="text-lg md:text-xl text-navy/80 mb-3 flex items-center justify-center gap-2">
+          <DollarSign size={22} className="text-money" />
           Based on the details you provided, we typically pay:
         </p>
-        <p className="text-3xl font-bold text-money mb-2">
-          {estimatedValue.perShirt} <span className="text-sm font-normal text-navy/60">per shirt*</span>
+        {/* Tiered per-shirt language (CLAUDE.md §4) — protects negotiating leverage. */}
+        <p className="text-xl md:text-2xl font-bold text-money mb-3 leading-snug">
+          Most shirts: $5–$25.
+          <br />
+          Top-condition rare pieces: up to $40+.*
         </p>
         <p className="text-sm text-navy/50 italic leading-relaxed max-w-sm mx-auto">
-          *This is an estimated average based on shirt age and type. Actual offers may be higher or lower once we see the shirts in person (condition matters!).
+          *This is an estimated average based on shirt age and type. Actual offers may be
+          higher or lower once we see the shirts in person (condition matters!).
         </p>
       </div>
 
       <p className="text-lg text-navy/70 mb-8 max-w-lg mx-auto">
-        We can come to you and pay cash on the spot. No shipping, no hassle.
+        We can come to you and pay cash on the spot, or send prepaid shipping. No hassle.
       </p>
 
       <Button size="lg" onClick={() => setStep("details")} className="w-full md:w-auto px-8">

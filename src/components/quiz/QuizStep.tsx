@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Info } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface QuizOption {
@@ -17,6 +17,7 @@ interface QuizStepProps {
   stepNumber: number;
   totalSteps: number;
   multiSelect?: boolean;
+  note?: string;
   onContinue?: () => void;
 }
 
@@ -28,6 +29,7 @@ export default function QuizStep({
   stepNumber,
   totalSteps,
   multiSelect = false,
+  note,
   onContinue,
 }: QuizStepProps) {
   const selectedArray = Array.isArray(selectedValue) ? selectedValue : [];
@@ -79,6 +81,14 @@ export default function QuizStep({
         <p className="text-sm text-navy/60 text-center mb-3">
           Select all that apply
         </p>
+      )}
+
+      {/* Trust / explanatory note (e.g. condition step) */}
+      {note && (
+        <div className="flex items-start gap-2 bg-navy/5 rounded-lg p-3 mb-4 max-w-md mx-auto">
+          <Info size={20} className="text-money flex-shrink-0 mt-0.5" />
+          <p className="text-sm md:text-base text-navy/70">{note}</p>
+        </div>
       )}
 
       {/* Options Grid - Compact on mobile */}

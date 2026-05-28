@@ -16,7 +16,7 @@ const steps = [
     step: "2",
     title: "Get Your Offer",
     description:
-      "We'll review your shirts and send you a fair cash offer within 24 hours. No pressure.",
+      "A real person texts you a fair cash offer — usually within the hour. No pressure.",
   },
   {
     icon: Banknote,

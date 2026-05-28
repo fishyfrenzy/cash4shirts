@@ -1,29 +1,49 @@
 "use client";
 
-import { MapPin, Heart, Shirt } from "lucide-react";
+import Image from "next/image";
+import { MapPin, BadgeCheck } from "lucide-react";
+import { SELLERS_COUNT, SINCE_YEAR, FB_PAGE_URL } from "@/lib/config";
 
 export default function LocalFace() {
   return (
     <section id="about" className="section bg-white">
       <div className="container-wide">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Image Placeholder */}
-          <div className="bg-gradient-to-br from-navy/5 to-money/5 rounded-2xl aspect-square flex items-center justify-center">
-            <div className="text-center p-8">
-              <div className="w-32 h-32 mx-auto bg-navy/10 rounded-full flex items-center justify-center mb-4">
-                <Shirt size={64} className="text-navy/40" />
-              </div>
-              <p className="text-navy/50 text-lg">[Founder Photo]</p>
-            </div>
+          {/* Founder photo */}
+          <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden shadow-lg">
+            <Image
+              src="/founders.jpg"
+              alt="The brothers behind Cash4Shirts, in vintage Harley-Davidson tees"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-top"
+            />
           </div>
 
           {/* Content */}
           <div>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-navy mb-6">
-              Real People. Fair Prices.
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-navy mb-4">
+              Real people. Fair prices.
               <br />
-              <span className="text-money">Local Service.</span>
+              <span className="text-money">Real buyers, not middlemen.</span>
             </h2>
+
+            {/* Authority + Facebook verification (CLAUDE.md §8) */}
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <span className="text-lg font-semibold text-navy bg-gold/15 px-4 py-2 rounded-full">
+                Bought from {SELLERS_COUNT}+ sellers since {SINCE_YEAR}
+              </span>
+              <a
+                href={FB_PAGE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-full font-semibold no-underline hover:bg-blue-100 transition-colors"
+              >
+                <BadgeCheck size={20} />
+                Verified on Facebook
+              </a>
+            </div>
+
             <p className="text-xl text-navy/80 mb-6 leading-relaxed">
               Every tee tells a story. We pay fair prices because we understand
               the value of what you&apos;re selling &mdash; and we make sure it
