@@ -145,7 +145,7 @@ function jakeEmailHtml(lead: LeadNotificationInput, estimate: string, local: boo
         <tr><td><strong>Shirt type</strong></td><td>${(q.shirtType ?? []).join(", ") || "—"}</td></tr>
         <tr><td><strong>Decades</strong></td><td>${(q.decades ?? []).join(", ") || "—"}</td></tr>
         <tr><td><strong>Volume</strong></td><td>${q.volume}</td></tr>
-        <tr><td><strong>Condition</strong></td><td>${q.condition}</td></tr>
+        <tr><td><strong>Condition</strong></td><td>${q.condition ?? "—"}</td></tr>
         <tr><td><strong>Notes</strong></td><td>${lead.userComments || "—"}</td></tr>
       </table>
       <h3>Photos</h3>

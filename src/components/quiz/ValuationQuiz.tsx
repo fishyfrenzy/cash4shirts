@@ -82,29 +82,9 @@ const quizSteps: QuizStepConfig[] = [
       },
     ],
   },
-  {
-    id: 4,
-    question: "What condition are they in?",
-    field: "condition",
-    note: "Why we ask — we personally inspect every shirt, so an honest answer means a faster, fairer offer.",
-    options: [
-      {
-        value: "great",
-        label: "Great Condition",
-        description: "Minimal wear, colors intact",
-      },
-      {
-        value: "faded",
-        label: "Faded / Thrashed",
-        description: "Worn look, soft fabric",
-      },
-      {
-        value: "holes",
-        label: "Has Holes / Damage",
-        description: "Visible wear and tear",
-      },
-    ],
-  },
+  // Condition step removed per request (was CLAUDE.md §13's "discuss before
+  // changing" item — it's the biggest price driver/negotiating leverage, so
+  // easy to re-add here if needed).
 ];
 
 interface ValuationQuizProps {

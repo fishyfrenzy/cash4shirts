@@ -15,7 +15,7 @@ export interface QuizResponses {
   shirtType: ShirtType[]; // Multi-select — sellers often have more than one kind
   decades: ("70s" | "80s" | "90s")[]; // Multi-select
   volume: "10_or_less" | "20_to_50" | "50_plus";
-  condition: "great" | "faded" | "holes";
+  condition?: "great" | "faded" | "holes"; // Optional — condition step removed for now
 }
 
 // Lead record from database

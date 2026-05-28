@@ -13,24 +13,52 @@ export function isLocalLocation(location: string): boolean {
   return v === "in" || v === "fl" || v === "indianapolis" || v === "florida";
 }
 
-// Numeric conversion value (USD) for pixel/CAPI `value` — the midpoint of the
-// quoted range (per-shirt midpoint × quantity midpoint). CLAUDE.md §5/§10:
-// local leads get a higher value applied by the caller, since they close better.
+// ─── Pricing (single source of truth) ───────────────────────────────────────
+// Per-shirt $ range depends ONLY on type + decade (quantity does not affect the
+// per-shirt price). Harley and Classic Rock vary by decade; 90s Band Tees are
+// inherently 90s; Other Vintage is flat.
+type PriceRange = [min: number, max: number];
+
+const PRICING: Record<string, { byDecade?: Record<string, PriceRange>; flat?: PriceRange }> = {
+  harley: { byDecade: { "70s": [40, 100], "80s": [20, 50], "90s": [10, 30] } },
+  classic_rock: { byDecade: { "70s": [50, 100], "80s": [40, 70], "90s": [30, 60] } },
+  // 90s Band Tees are 90s by definition — wide range, can hit grails.
+  "90s_band": { flat: [40, 250] },
+  other: { flat: [15, 30] },
+};
+
+// Per-shirt range for one type across the selected decades.
+function perShirtRange(type: string, decades: string[]): PriceRange {
+  const p = PRICING[type] ?? PRICING.other;
+  if (p.flat) return p.flat;
+  const table = p.byDecade!;
+  const decs = decades.filter((d) => table[d]);
+  const use = decs.length ? decs : Object.keys(table); // no decade picked → span all
+  const mins = use.map((d) => table[d][0]);
+  const maxs = use.map((d) => table[d][1]);
+  return [Math.min(...mins), Math.max(...maxs)];
+}
+
+// Overall per-shirt range across every selected type+decade combo.
+function aggregatePerShirt(quizResponses: { shirtType: string[]; decades: string[] }): PriceRange {
+  const types = quizResponses.shirtType.length ? quizResponses.shirtType : ["other"];
+  const ranges = types.map((t) => perShirtRange(t, quizResponses.decades));
+  return [Math.min(...ranges.map((r) => r[0])), Math.max(...ranges.map((r) => r[1]))];
+}
+
+// Numeric conversion value (USD) for the pixel/CAPI `value` — per-shirt midpoint
+// × quantity midpoint. Quantity only matters here (total lead value for ad
+// optimization), not for the per-shirt price the seller sees. Local leads get a
+// higher value applied by the caller (CLAUDE.md §5/§10).
 export function getEstimatedValue(quizResponses: QuizResponses): number {
-  const perShirt: Record<string, number> = {
-    classic_rock: 30,
-    harley: 20,
-    "90s_band": 75,
-    other: 22,
-  };
-  const qty: Record<QuizResponses["volume"], number> = {
+  const [min, max] = aggregatePerShirt(quizResponses);
+  const perShirtMid = (min + max) / 2;
+  const qtyMid: Record<QuizResponses["volume"], number> = {
     "10_or_less": 5,
     "20_to_50": 35,
     "50_plus": 75,
   };
-  // Use the highest-value selected type (optimistic, matches the "good news" framing).
-  const best = Math.max(...(quizResponses.shirtType.length ? quizResponses.shirtType : ["other"]).map((t) => perShirt[t] ?? 20));
-  return Math.round(best * (qty[quizResponses.volume] ?? 5));
+  return Math.round(perShirtMid * (qtyMid[quizResponses.volume] ?? 5));
 }
 
 // Maps the quiz shirt type to a pixel/notification category (CLAUDE.md §5).
@@ -65,53 +93,27 @@ export function formatDate(dateString: string): string {
   });
 }
 
-// Per-shirt $ range for a single shirt type (Harley varies by decade).
-function perShirtRange(type: string, decades: string[]): { min: number; max: number } {
-  if (type === "classic_rock") return { min: 20, max: 40 };
-  if (type === "90s_band") return { min: 50, max: 100 };
-  if (type === "harley") {
-    const decadePrices: Record<string, number> = { "70s": 25, "80s": 20, "90s": 15 };
-    const prices = decades.map((d) => decadePrices[d] || 20);
-    return { min: Math.min(...(prices.length ? prices : [20])), max: Math.max(...(prices.length ? prices : [20])) };
-  }
-  return { min: 15, max: 30 }; // other vintage
-}
-
+// Seller-facing estimate. `perShirt` is the range shown on the estimate page
+// (type + decade only). `min`/`max` are a rough TOTAL ballpark (per-shirt ×
+// quantity) used in Jake's internal lead notification — not shown to sellers.
 export function getValueEstimate(quizResponses: {
   volume: string;
-  condition: string;
+  condition?: string;
   shirtType: string[];
   decades: string[];
 }): { min: string; max: string; perShirt: string } {
-  // Across all selected shirt types, take the lowest floor and highest ceiling.
-  const types = quizResponses.shirtType.length ? quizResponses.shirtType : ["other"];
-  const ranges = types.map((t) => perShirtRange(t, quizResponses.decades));
-  let minPerShirt = Math.min(...ranges.map((r) => r.min));
-  let maxPerShirt = Math.max(...ranges.map((r) => r.max));
+  const [minPerShirt, maxPerShirt] = aggregatePerShirt(quizResponses);
 
-  // Get shirt count range based on volume
-  let minCount = 1;
-  let maxCount = 10;
-  if (quizResponses.volume === "10_or_less") {
-    minCount = 1;
-    maxCount = 10;
-  } else if (quizResponses.volume === "20_to_50") {
-    minCount = 20;
-    maxCount = 50;
-  } else if (quizResponses.volume === "50_plus") {
-    minCount = 50;
-    maxCount = 100;
-  }
-
-  // Calculate total range
-  const totalMin = minPerShirt * minCount;
-  const totalMax = maxPerShirt * maxCount;
+  const counts: Record<string, PriceRange> = {
+    "10_or_less": [1, 10],
+    "20_to_50": [20, 50],
+    "50_plus": [50, 100],
+  };
+  const [minCount, maxCount] = counts[quizResponses.volume] ?? [1, 10];
 
   return {
-    min: `$${totalMin.toLocaleString()}`,
-    max: `$${totalMax.toLocaleString()}`,
-    perShirt: minPerShirt === maxPerShirt
-      ? `$${minPerShirt}`
-      : `$${minPerShirt}-$${maxPerShirt}`,
+    min: `$${(minPerShirt * minCount).toLocaleString()}`,
+    max: `$${(maxPerShirt * maxCount).toLocaleString()}`,
+    perShirt: minPerShirt === maxPerShirt ? `$${minPerShirt}` : `$${minPerShirt}–$${maxPerShirt}`,
   };
 }

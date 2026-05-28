@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DollarSign, ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ImageUpload from "./ImageUpload";
 import { QuizResponses } from "@/types";
-import { getEstimatedValue, getLeadCategory } from "@/lib/utils";
+import { getEstimatedValue, getLeadCategory, getValueEstimate } from "@/lib/utils";
 import { getAttribution } from "@/lib/attribution";
 import { US_STATES, LOCAL_STATES } from "@/lib/us-states";
 
@@ -28,6 +28,9 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
 
   // Keep onReset referenced (used by callers to restart the quiz).
   void onReset;
+
+  // Per-shirt estimate from type + decade (quantity doesn't affect per-shirt price).
+  const estimate = getValueEstimate(quizResponses);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,20 +238,18 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
         Good News! We Are Interested In Your Shirts.
       </h3>
 
-      <div className="bg-cream rounded-xl p-6 mb-8 border border-navy/5 max-w-lg mx-auto">
-        <p className="text-lg md:text-xl text-navy/80 mb-3 flex items-center justify-center gap-2">
-          <DollarSign size={22} className="text-money" />
-          Based on the details you provided, we typically pay:
+      <div className="bg-white rounded-2xl p-6 md:p-8 mb-8 border-2 border-money/20 shadow-sm max-w-lg mx-auto">
+        <p className="text-xl text-navy/90 mb-4">
+          Based on your answers, we typically pay:
         </p>
-        {/* Tiered per-shirt language (CLAUDE.md §4) — protects negotiating leverage. */}
-        <p className="text-xl md:text-2xl font-bold text-money mb-3 leading-snug">
-          Most shirts: $5–$25.
-          <br />
-          Top-condition rare pieces: up to $40+.*
+        {/* Computed per-shirt range (type + decade). */}
+        <p className="text-5xl md:text-6xl font-extrabold text-money leading-none mb-2">
+          {estimate.perShirt}
         </p>
-        <p className="text-sm text-navy/50 italic leading-relaxed max-w-sm mx-auto">
-          *This is an estimated average based on shirt age and type. Actual offers may be
-          higher or lower once we see the shirts in person (condition matters!).
+        <p className="text-xl font-semibold text-navy mb-5">per shirt*</p>
+        <p className="text-base text-navy/70 leading-relaxed max-w-md mx-auto border-t border-navy/10 pt-4">
+          *Estimated average based on the age and type of your shirts. Your actual
+          offer may be higher or lower once we see them in person — condition matters!
         </p>
       </div>
 
