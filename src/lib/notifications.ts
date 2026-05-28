@@ -168,7 +168,7 @@ export async function sendLeadNotifications(
   const local = isLocalLocation(lead.location);
   const estimate = (() => {
     const e = getValueEstimate(lead.quizResponses);
-    return `${e.min}–${e.max} (${e.perShirt}/shirt)`;
+    return `${e.perShirt}/shirt · est. total ${e.total}`;
   })();
 
   const tasks: { name: keyof NotificationResult; run: () => Promise<void> }[] = [

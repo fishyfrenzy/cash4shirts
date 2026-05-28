@@ -82,7 +82,7 @@ export default function Home() {
             <p className="text-xl text-navy/70 mb-8 max-w-xl mx-auto">
               Answer a few quick questions and we&apos;ll tell you what we&apos;d pay. No pressure, no fees &mdash; and we come to you or send prepaid shipping.
             </p>
-            <Button size="lg" onClick={() => setQuizOpen(true)}>
+            <Button size="lg" onClick={() => setQuizOpen(true)} className="w-full sm:w-auto">
               Get My Free Cash Offer
               <ArrowRight className="ml-2" size={24} />
             </Button>

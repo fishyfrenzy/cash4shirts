@@ -23,7 +23,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           </p>
 
           {/* CTA Button */}
-          <Button size="lg" onClick={onStartQuiz} className="mb-8">
+          <Button size="lg" onClick={onStartQuiz} className="mb-8 w-full sm:w-auto">
             Get Your Free Cash Offer
             <ArrowRight className="ml-2" size={24} />
           </Button>

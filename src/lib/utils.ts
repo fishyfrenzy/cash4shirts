@@ -93,27 +93,46 @@ export function formatDate(dateString: string): string {
   });
 }
 
-// Seller-facing estimate. `perShirt` is the range shown on the estimate page
-// (type + decade only). `min`/`max` are a rough TOTAL ballpark (per-shirt ×
-// quantity) used in Jake's internal lead notification — not shown to sellers.
+// Blended average per shirt — assumes a realistic mix across the seller's pile:
+// 75% at the low price, 15% at mid-high (¾ up the range), 10% at the top.
+// Works out to ≈ 0.79·low + 0.21·high — conservative, protects the in-person offer.
+function blendedAvg(min: number, max: number): number {
+  const midHigh = min + 0.75 * (max - min);
+  return 0.75 * min + 0.15 * midHigh + 0.1 * max;
+}
+
+const round10 = (n: number) => Math.round(n / 10) * 10;
+const money = (n: number) => `$${round10(n).toLocaleString()}`;
+
+// Seller-facing estimate shown on the estimate page:
+//  - perShirt: the price range for one shirt (type + decade)
+//  - total:    estimated collection total (blended avg × their quantity bucket)
 export function getValueEstimate(quizResponses: {
   volume: string;
   condition?: string;
   shirtType: string[];
   decades: string[];
-}): { min: string; max: string; perShirt: string } {
+}): { perShirt: string; total: string } {
   const [minPerShirt, maxPerShirt] = aggregatePerShirt(quizResponses);
+  const avg = blendedAvg(minPerShirt, maxPerShirt);
 
-  const counts: Record<string, PriceRange> = {
-    "10_or_less": [1, 10],
-    "20_to_50": [20, 50],
-    "50_plus": [50, 100],
-  };
-  const [minCount, maxCount] = counts[quizResponses.volume] ?? [1, 10];
+  let total: string;
+  switch (quizResponses.volume) {
+    case "10_or_less":
+      total = `up to ${money(avg * 10)}`;
+      break;
+    case "20_to_50":
+      total = `${money(avg * 20)}–${money(avg * 50)}`;
+      break;
+    case "50_plus":
+      total = `${money(avg * 50)}+`;
+      break;
+    default:
+      total = `up to ${money(avg * 10)}`;
+  }
 
   return {
-    min: `$${(minPerShirt * minCount).toLocaleString()}`,
-    max: `$${(maxPerShirt * maxCount).toLocaleString()}`,
     perShirt: minPerShirt === maxPerShirt ? `$${minPerShirt}` : `$${minPerShirt}–$${maxPerShirt}`,
+    total,
   };
 }

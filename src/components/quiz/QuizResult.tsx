@@ -243,10 +243,17 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
           Based on your answers, we typically pay:
         </p>
         {/* Computed per-shirt range (type + decade). */}
-        <p className="text-5xl md:text-6xl font-extrabold text-money leading-none mb-2">
+        <p className="text-5xl md:text-6xl font-extrabold text-money leading-none mb-1">
           {estimate.perShirt}
         </p>
         <p className="text-xl font-semibold text-navy mb-5">per shirt*</p>
+
+        {/* Estimated collection total (blended avg × their quantity). */}
+        <div className="bg-money/5 rounded-xl py-4 px-4 mb-5">
+          <p className="text-base text-navy/70 mb-1">Estimated total for your collection</p>
+          <p className="text-3xl md:text-4xl font-bold text-navy">{estimate.total}</p>
+        </div>
+
         <p className="text-base text-navy/70 leading-relaxed max-w-md mx-auto border-t border-navy/10 pt-4">
           *Estimated average based on the age and type of your shirts. Your actual
           offer may be higher or lower once we see them in person — condition matters!
