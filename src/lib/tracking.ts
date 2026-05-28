@@ -43,14 +43,15 @@ export function trackLead(event: LeadEvent): void {
   }
 
   try {
-    window.oaiq?.("measure", "lead", {
-      value: estimatedValue,
+    // OpenAI/ChatGPT Ads conversion event (matches the "registration_completed"
+    // data source). `amount` carries the estimated lead value for optimization.
+    window.oaiq?.("measure", "registration_completed", {
+      type: "customer_action",
+      amount: estimatedValue,
       currency: "USD",
-      category,
-      event_id: eventId,
     });
   } catch (err) {
-    console.error("[tracking] OpenAI lead failed:", err);
+    console.error("[tracking] OpenAI measure failed:", err);
   }
 }
 

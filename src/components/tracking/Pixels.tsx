@@ -6,19 +6,26 @@ import Script from "next/script";
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const OPENAI_PIXEL_ID = process.env.NEXT_PUBLIC_OPENAI_PIXEL_ID;
 
-// Rendered near the TOP of <head> so it captures the `oppref` query param before
-// any client navigation strips it.
+// OpenAI/ChatGPT Ads pixel — official setup snippet (one per page, in <head>).
+// The conversion event ("registration_completed") fires on the thank-you page
+// via trackLead(), not here.
 export function OpenAIPixelHead() {
   if (!OPENAI_PIXEL_ID) return null;
   return (
     <Script id="openai-pixel" strategy="beforeInteractive">
       {`
-        !function(){window.oaiq=window.oaiq||function(){(window.oaiq.q=window.oaiq.q||[]).push(arguments)};
-        var s=document.createElement('script');s.async=true;
-        s.src='https://js.openai.com/oai-pixel.js';
-        var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);}();
-        oaiq('init', '${OPENAI_PIXEL_ID}');
-        oaiq('measure', 'page_view');
+        !function(w, d, s, u) {
+          if (w.oaiq) return;
+          var q = function() { q.q.push(arguments); };
+          q.q = [];
+          w.oaiq = q;
+          var j = d.createElement(s);
+          j.async = 1;
+          j.src = u;
+          var f = d.getElementsByTagName(s)[0];
+          f.parentNode.insertBefore(j, f);
+        }(window, document, "script", "https://bzrcdn.openai.com/sdk/oaiq.min.js");
+        oaiq("init", { pixelId: "${OPENAI_PIXEL_ID}", debug: ${process.env.NODE_ENV !== "production"} });
       `}
     </Script>
   );

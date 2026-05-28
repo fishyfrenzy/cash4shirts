@@ -9,10 +9,10 @@ import { Attribution } from "@/lib/attribution";
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const META_CAPI_ACCESS_TOKEN = process.env.META_CAPI_ACCESS_TOKEN;
-const OPENAI_PIXEL_ID = process.env.NEXT_PUBLIC_OPENAI_PIXEL_ID;
-const OPENAI_ADS_API_KEY = process.env.OPENAI_ADS_API_KEY;
 
 const META_API_VERSION = "v21.0";
+// Note: OpenAI/ChatGPT Ads tracking is client-side only (the oaiq pixel in
+// Pixels.tsx + trackLead). OpenAI has no server-side Conversions API here.
 
 export interface ConversionInput {
   eventId: string;
@@ -98,47 +98,12 @@ async function postMetaCAPI(input: ConversionInput): Promise<void> {
   }
 }
 
-async function postOpenAICAPI(input: ConversionInput): Promise<void> {
-  if (!OPENAI_PIXEL_ID || !OPENAI_ADS_API_KEY) {
-    // Expected until OpenAI provisions the pixel ID + API key (CLAUDE.md §5).
-    console.warn("[conversions] OpenAI Ads env vars missing — skipping");
-    return;
-  }
-
-  // ⚠️ SCAFFOLD: OpenAI's Conversions API request shape is not yet finalized in
-  // the brief. This sends a reasonable hashed-PII payload with the shared event_id;
-  // confirm the endpoint + field names against OpenAI's docs when the pixel lands.
-  const body = {
-    pixel_id: OPENAI_PIXEL_ID,
-    event: "lead",
-    event_id: input.eventId,
-    value: input.value,
-    currency: "USD",
-    category: input.category,
-    oppref: input.oppref ?? input.attribution?.oppref ?? input.attribution?.__oppref,
-    user_data: { ph: hashPhone(input.phone) },
-  };
-
-  const res = await fetch("https://api.openai.com/v1/ads/conversions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_ADS_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    throw new Error(`OpenAI CAPI ${res.status}: ${await res.text()}`);
-  }
-}
-
-// Posts the Lead conversion to Meta + OpenAI in parallel. Never throws.
+// Posts the Lead conversion to Meta's server-side CAPI. Never throws.
+// (OpenAI tracking is client-side only — see Pixels.tsx / trackLead.)
 export async function postServerConversions(input: ConversionInput): Promise<void> {
-  const settled = await Promise.allSettled([postMetaCAPI(input), postOpenAICAPI(input)]);
-  settled.forEach((outcome, i) => {
-    if (outcome.status === "rejected") {
-      console.error(`[conversions] ${i === 0 ? "Meta" : "OpenAI"} failed:`, outcome.reason);
-    }
-  });
+  try {
+    await postMetaCAPI(input);
+  } catch (err) {
+    console.error("[conversions] Meta CAPI failed:", err);
+  }
 }
