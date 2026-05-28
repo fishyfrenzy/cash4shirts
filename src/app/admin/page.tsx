@@ -21,7 +21,14 @@ import { createClient } from "@/lib/supabase/client";
 import { Lead, LeadStatus, RecentBuy, RecentBuyInsert } from "@/types";
 import { formatPhoneNumber, formatDate } from "@/lib/utils";
 import Button from "@/components/ui/Button";
-import { verifyAdminPassword } from "./actions";
+import {
+  verifyAdminPassword,
+  getLeads,
+  setLeadStatus,
+  setLeadNotes,
+  addRecentBuy as addRecentBuyServer,
+  removeRecentBuy,
+} from "./actions";
 
 const statusColors: Record<LeadStatus, string> = {
   new: "bg-blue-100 text-blue-800",
@@ -112,22 +119,10 @@ export default function AdminPage() {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const supabase = createClient();
-      let query = supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (filterStatus !== "all") {
-        query = query.eq("status", filterStatus);
-      }
-
-      if (filterLocation !== "all") {
-        query = query.eq("location", filterLocation);
-      }
-
-      const { data, error } = await query;
-      if (!error) setLeads(data || []);
+      // Server action uses the service-role key (bypasses RLS) after verifying
+      // the admin session cookie — the public key can't read lead PII.
+      const data = await getLeads(filterStatus, filterLocation);
+      setLeads(data || []);
     } catch (err) {
       console.error("Error fetching leads:", err);
     } finally {
@@ -183,12 +178,7 @@ export default function AdminPage() {
   const addRecentBuy = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("recent_buys")
-        .insert([newBuy]);
-
-      if (error) throw error;
+      await addRecentBuyServer(newBuy);
 
       setShowAddModal(false);
       setNewBuy({
@@ -208,12 +198,7 @@ export default function AdminPage() {
   const deleteRecentBuy = async (id: string) => {
     if (!confirm("Are you sure you want to delete this item?")) return;
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("recent_buys")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
+      await removeRecentBuy(id);
       fetchRecentBuys();
     } catch (err) {
       console.error("Error deleting item:", err);
@@ -223,16 +208,9 @@ export default function AdminPage() {
   const updateLeadStatus = async (leadId: string, newStatus: LeadStatus) => {
     setUpdatingStatus(leadId);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("leads")
-        .update({ status: newStatus })
-        .eq("id", leadId);
-
-      if (!error) {
-        setLeads((prev: Lead[]) => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
-        if (selectedLead?.id === leadId) setSelectedLead((prev: Lead | null) => prev ? { ...prev, status: newStatus } : null);
-      }
+      await setLeadStatus(leadId, newStatus);
+      setLeads((prev: Lead[]) => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
+      if (selectedLead?.id === leadId) setSelectedLead((prev: Lead | null) => prev ? { ...prev, status: newStatus } : null);
     } catch (err) {
       console.error("Error updating status:", err);
     } finally {
@@ -244,16 +222,9 @@ export default function AdminPage() {
     if (!selectedLead) return;
     setSavingNotes(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("leads")
-        .update({ admin_notes: adminNotes })
-        .eq("id", selectedLead.id);
-
-      if (!error) {
-        setLeads((prev: Lead[]) => prev.map(l => l.id === selectedLead.id ? { ...l, admin_notes: adminNotes } : l));
-        setSelectedLead((prev: Lead | null) => prev ? { ...prev, admin_notes: adminNotes } : null);
-      }
+      await setLeadNotes(selectedLead.id, adminNotes);
+      setLeads((prev: Lead[]) => prev.map(l => l.id === selectedLead.id ? { ...l, admin_notes: adminNotes } : l));
+      setSelectedLead((prev: Lead | null) => prev ? { ...prev, admin_notes: adminNotes } : null);
     } catch (err) {
       console.error("Error updating notes:", err);
     } finally {
