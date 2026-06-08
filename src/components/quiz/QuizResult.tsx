@@ -210,14 +210,17 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
             </div>
           )}
 
-          <Button type="submit" size="lg" className="w-full" isLoading={submitting}>
-            Get My Cash Offer
-            <ArrowRight className="ml-2" size={24} />
-          </Button>
-
-          <p className="text-base text-navy/60 text-center">
-            We&apos;ll text you within the hour. No obligation.
-          </p>
+          {/* Sticky submit — pinned to the bottom of the modal so the CTA is
+              always on screen and the trailing copy never gets cut off. */}
+          <div className="sticky bottom-0 -mx-4 md:-mx-8 -mb-4 md:-mb-8 bg-cream/95 backdrop-blur-sm border-t border-navy/10 px-4 md:px-8 pt-4 pb-4">
+            <Button type="submit" size="lg" className="w-full" isLoading={submitting}>
+              Get My Cash Offer
+              <ArrowRight className="ml-2" size={24} />
+            </Button>
+            <p className="text-sm text-navy/60 text-center mt-2">
+              We&apos;ll text you within the hour. No obligation.
+            </p>
+          </div>
         </form>
       </div>
     );
@@ -225,41 +228,43 @@ export default function QuizResult({ quizResponses, onReset }: QuizResultProps) 
 
   // Result Step
   return (
-    <div className="text-center animate-fade-in-up">
-      <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4">
-        Good News! We Are Interested In Your Shirts.
-      </h3>
+    <div className="animate-fade-in-up">
+      <div className="text-center">
+        <h3 className="text-2xl md:text-3xl font-serif font-bold text-navy mb-4">
+          Good News! We Are Interested In Your Shirts.
+        </h3>
 
-      <div className="bg-white rounded-2xl p-6 md:p-8 mb-8 border-2 border-money/20 shadow-sm max-w-lg mx-auto">
-        <p className="text-xl text-navy/90 mb-4">
-          Based on your answers, we typically pay:
-        </p>
-        {/* Computed per-shirt range (type + decade). */}
-        <p className="text-5xl md:text-6xl font-extrabold text-money leading-none mb-1">
-          {estimate.perShirt}
-        </p>
-        <p className="text-xl font-semibold text-navy mb-5">per shirt*</p>
+        <div className="bg-white rounded-2xl p-6 md:p-8 mb-6 border-2 border-money/20 shadow-sm max-w-lg mx-auto">
+          <p className="text-xl text-navy/90 mb-4">
+            Based on your answers, we typically pay:
+          </p>
+          {/* Computed per-shirt range (type + decade). */}
+          <p className="text-5xl md:text-6xl font-extrabold text-money leading-none mb-1">
+            {estimate.perShirt}
+          </p>
+          <p className="text-xl font-semibold text-navy mb-5">per shirt</p>
 
-        {/* Estimated collection total (blended avg × their quantity). */}
-        <div className="bg-money/5 rounded-xl py-4 px-4 mb-5">
-          <p className="text-base text-navy/70 mb-1">Estimated total for your collection</p>
-          <p className="text-3xl md:text-4xl font-bold text-navy">{estimate.total}</p>
+          {/* Estimated collection total (blended avg × their quantity). */}
+          <div className="bg-money/5 rounded-xl py-4 px-4">
+            <p className="text-base text-navy/70 mb-1">Estimated total for your collection</p>
+            <p className="text-3xl md:text-4xl font-bold text-navy">{estimate.total}</p>
+          </div>
         </div>
 
-        <p className="text-base text-navy/70 leading-relaxed max-w-md mx-auto border-t border-navy/10 pt-4">
-          *Estimated average based on the age and type of your shirts. Your actual
-          offer may be higher or lower once we see them in person — condition matters!
+        <p className="text-lg text-navy/70 mb-6 max-w-lg mx-auto">
+          We can come to you and pay cash on the spot, or send prepaid shipping. No hassle.
         </p>
       </div>
 
-      <p className="text-lg text-navy/70 mb-8 max-w-lg mx-auto">
-        We can come to you and pay cash on the spot, or send prepaid shipping. No hassle.
-      </p>
-
-      <Button size="lg" onClick={() => setStep("details")} className="w-full md:w-auto px-8">
-        See My Offer & Next Steps
-        <ArrowRight className="ml-2" size={24} />
-      </Button>
+      {/* Sticky CTA — stays pinned to the bottom of the modal so it's always
+          on screen, regardless of how tall the content above it is. Negative
+          margins cancel the modal's content padding for an edge-to-edge bar. */}
+      <div className="sticky bottom-0 -mx-4 md:-mx-8 -mb-4 md:-mb-8 bg-cream/95 backdrop-blur-sm border-t border-navy/10 px-4 md:px-8 py-4">
+        <Button size="lg" onClick={() => setStep("details")} className="w-full">
+          See My Offer & Next Steps
+          <ArrowRight className="ml-2" size={24} />
+        </Button>
+      </div>
     </div>
   );
 }
