@@ -5,7 +5,7 @@ import { createHash } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Lead, LeadStatus, RecentBuyInsert } from "@/types";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "averymatt2026";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const COOKIE = "c4s_admin";
 
 // httpOnly session token = hash of the admin password. The browser can't read or
@@ -14,7 +14,8 @@ const sessionToken = () =>
   createHash("sha256").update(`c4s::${ADMIN_PASSWORD}`).digest("hex");
 
 export async function verifyAdminPassword(password: string): Promise<boolean> {
-  const ok = password === ADMIN_PASSWORD;
+  // Fail closed: if ADMIN_PASSWORD isn't configured, no password can authenticate.
+  const ok = Boolean(ADMIN_PASSWORD) && password === ADMIN_PASSWORD;
   if (ok) {
     (await cookies()).set(COOKIE, sessionToken(), {
       httpOnly: true,
