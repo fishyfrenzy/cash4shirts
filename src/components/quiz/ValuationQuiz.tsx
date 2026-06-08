@@ -27,7 +27,7 @@ const quizSteps: QuizStepConfig[] = [
       },
       {
         value: "90s_band",
-        label: "90s Band Tees",
+        label: "Alt/Metal/Indie Band Tees",
         description: "Grunge, metal, rock from the 90s",
       },
       {
