@@ -1,0 +1,16 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "sell.cash4shirts.com" }],
+      "destination": "https://perspectivefunnel.co/6a444023a4944b1c8ff1bd6f/6a4441dbb8eeccff6a39cb96/",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "cash4shirts.com" }],
+      "destination": "https://perspectivefunnel.co/6a444023a4944b1c8ff1bd6f/6a4441dbb8eeccff6a39cb96/",
+      "permanent": false
+    }
+  ]
+}
